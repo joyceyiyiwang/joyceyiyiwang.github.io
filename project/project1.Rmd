@@ -1,0 +1,360 @@
+---
+title: "Project 1"
+author: "SDS348 Fall 2020"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+---
+
+```{r global_options, include=FALSE}
+#DO NOT EDIT THIS CHUNK OR ANYTHING ABOVE IT!
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F, tidy=T, tidy.opts=list(width.cutoff=50), R.options=list(max.print=100,dplyr.print_max=100))
+```
+
+## Joyce Wang (yw9497)
+
+
+### 0. Introduction
+
+#### As a Biology major, I decided to use the Wisconsin Brest Cancer Dataset obtained from: https://www.kaggle.com/uciml/breast-cancer-wisconsin-data. Since I could not find a dataset to join with this one, I will separate it into 2 datasets.
+
+
+#### This dataset contains 32 measurements of breast cancer samples from 569 patients. `id` represents the unique IDs of all the samples. `diagnosis` classifies the tumors as either benign (`B`) or malignant (`M`). This dataset also contains measurements of the mean (`mean`), standard error (`se`), and maximum (`worst`) for each feature, including:
+
+####  1. `radius` (mean of distances from center to points on the perimeter)
+####  2. `texture` (standard deviation of gray-scale values)
+####  3. `perimeter`
+####  4. `area`
+####  5. `smoothness` (local variation in radius lengths)
+####  6. `compactness` (perimeter^2 / area - 1.0)
+####  7. `concavity` (severity of concave portions of the contour)
+####  8. `concave_points` (number of concave portions of the contour)
+####  9. `symmetry`
+#### 10. `fractal_dimension` ("coastline approximation" - 1).
+
+#### For this project, I will only be focusing on `diagnosis` and the mean measurements of these features.
+
+
+
+### 1. Joining/Merging
+
+#### Load packages
+
+```{R}
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+library(factoextra)
+```
+
+#### Read in the dataset
+
+```{R}
+# Read in the dataset
+breast_cancer = read_csv("/stor/home/yw9497/Website/content/project/WisconsinBreastCancerDatabase.csv")
+
+# Take a glimpse
+glimpse(breast_cancer)
+```
+
+#### Split this dataset into 2 datasets
+
+```{R}
+# Make sure `id` is contained in both datasets
+breast_cancer_1 = breast_cancer[, 1 : 16]
+breast_cancer_2 = breast_cancer[, c(1, 17 : 32)]
+
+# Take a glimpse on both datasets
+glimpse(breast_cancer_1)
+glimpse(breast_cancer_2)
+```
+
+#### Join the 2 datasets back together
+
+```{R}
+# Perform a left join on `breast_cancer_1`, by `id`
+breast_cancer_joined = 
+  breast_cancer_1 %>% left_join(breast_cancer_2, by = "id")
+
+# Take a glimpse
+glimpse(breast_cancer_joined)
+```
+
+*Since these 2 datasets both contain the exact same values in the `id` column, no observations will be dropped no matter which type of join (among left/right/inner/full) is used. Here, I chose left join to obtain the same dataset before the splitting.*
+
+
+### 2. Wrangling
+
+#### Select the columns in interest
+
+```{R}
+# Since I decided to not focusing on `se` or `worst`,
+# remove those columns
+breast_cancer_joined = breast_cancer_joined %>% select(1 : 12)
+
+# Take a glimpse
+glimpse(breast_cancer_joined)
+```
+
+#### Calculate summary statistics for all numeric variables
+
+```{R}
+# Calculate the mean for each numeric variables
+breast_cancer_stats_all = breast_cancer_joined %>% 
+  select(-c(id, diagnosis)) %>% # Drop the first 2 columns (`id` and `diagnosis`)
+  summarize_all(c(mean = mean, # Mean
+                  sd = sd, # Standard deviation
+                  percentile = quantile, # Percentile
+                  min = min, # Minimum
+                  max = max)) # Maximum
+
+# Take a glimpse
+glimpse(breast_cancer_stats_all)
+```
+
+#### Calculate summary statistics for all numeric variables, grouping by a categorical variable
+
+```{R}
+# Calculate the summary statistics for each numeric variables
+breast_cancer_stats_group = breast_cancer_joined %>% 
+  select(-id) %>% # Drop the first column (`id`)
+  group_by(diagnosis) %>% # Group by `diagnosis`
+  summarize_all(c(mean = mean, # Mean
+                  sd = sd, # Standard deviation
+                  percentile = quantile, # Percentile
+                  min = min, # Minimum
+                  max = max)) %>% # Maximum
+  pivot_longer(-diagnosis) %>% # Pivot longer
+  separate(name, into = c("feature", "stat"), 
+           sep = "_(?=[^_]+$)") %>% # Separate the `name` column
+  mutate(rn = row_number()) %>% # Add a column of unique identifiers to avoid problems
+  pivot_wider(names_from = diagnosis, values_from = value) %>% # Pivot wider
+  select(-rn) # Remove the column of row numbers
+
+# Take a glimpse
+glimpse(breast_cancer_stats_group)
+```
+
+#### Arrange by `radius_mean` in ascending order
+
+```{R}
+breast_cancer_joined_arranged = 
+  breast_cancer_joined %>% arrange(radius_mean)
+
+# Take a glimpse
+glimpse(breast_cancer_joined_arranged)
+```
+
+#### Calculate the ratio of `concavity_mean` to `concave_points_mean`
+
+```{R}
+breast_cancer_joined_concave_ratio = 
+  breast_cancer_joined %>% 
+  mutate(concave_mean_ratio = 
+           concavity_mean / concave_points_mean)
+
+# Take a glimpse
+glimpse(breast_cancer_joined_concave_ratio)
+```
+
+#### Get the info for sample with maximum `radius_mean` for each categorical variable
+
+```{R}
+breast_cancer_joined %>%
+  group_by(diagnosis) %>% # Group by `diagnosis`
+  filter(radius_mean == max(radius_mean)) # Filter for max value in `radius_mean`
+```
+
+
+### 3. Visualizing
+
+#### Create a heatmap
+
+```{R}
+# Create a correlation matrix
+cormat = breast_cancer_joined %>%
+  select_if(is.numeric) %>% # Select numeric variables
+  select(-id) %>% # Remove the `id` column
+  cor(use = "pair") # Calculate correlations
+
+# Tidy the correlation matrix
+tidycor = cormat %>%
+  as.data.frame %>% # Change a matrix to a dataframe
+  rownames_to_column("var1") %>% # Copy rownames to a column `var1`
+  pivot_longer(-1, names_to = "var2", values_to = "correlation") # Pivot longer
+
+# Create a heatmap
+tidycor %>%
+  ggplot(aes(var1, var2, fill = correlation))+
+  geom_tile() +
+  scale_fill_gradient2("Correlation", low = "blue", mid = "white",
+                       high = "red") + # Set legend title and colors
+  geom_text(aes(label = round(correlation, 2)),color = "black", 
+            size = 2) + # Set text size and color
+  ggtitle("Correlations between Numeric Variables") + # Add a title
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + # Rotate the x labels
+  xlab("") + # Remove x-axis label
+  ylab("") + # Remove y-axis label
+  coord_fixed() # Set it as a square
+```
+
+*This heatmap shows the correlation between 2 numeric variables, with red representing a positive correlation, and blue representing a negative one. As shown by the plot, there is an extremely strong, positive, and linear relationship between any pairwise comparisons among `radius_mean`, `perimeter_mean`, and `area_mean`.*
+
+#### Create a scatterplot
+
+```{R}
+# Create a scatterplot between `radius_mean` and `perimeter_mean`
+ggplot(breast_cancer_joined, aes(x = radius_mean, y = perimeter_mean)) +
+  geom_point(aes(color = factor(diagnosis, # Color the dots by diagnosis
+                                labels = c("Benign", "Malignant"))), # Add labels to the factor
+             size = 2.5) +  # Make the dots larger
+  scale_color_brewer(palette = "Accent") + # Change the default color
+  geom_smooth(method = "lm", color = "black", se = F) + # Add a trend line
+  labs(title = "Perimeter Mean vs. Radius Mean", # Add a title
+       color = "Diagnosis") + # Rename the legend title
+  scale_x_continuous("Radius Mean", # Rename x-axis label
+                     breaks = seq(6, 28, by = 2)) + # Add more tick marks
+  scale_y_continuous("Perimeter Mean", # Rename y-axis label
+                     breaks = seq(40, 180, by = 20)) + # Add more tick marks
+  theme(legend.position = "bottom") # Move legend to the bottom
+```
+
+*This scatterplot confirms the strong, positive, and linear relationship between  `radius_mean` and `perimeter_mean`. This plot also shows that malignant tumors tend to have greater `radius_mean` and `perimeter_mean` when compared to benign tumors.*
+
+#### Create a barplot
+
+```{R}
+# Create a barplot of `concavity_mean`
+ggplot(breast_cancer_joined, aes(x = factor(diagnosis, levels = c("M", "B"), 
+                                            labels = c("Malignant",
+                                                       "Benign")), 
+                                 y = concavity_mean, 
+                                 fill = factor(diagnosis,  # Color the dots by diagnosis
+                                               labels = c("Benign", 
+                                                         "Malignant")))) + # Add labels to the factor
+  scale_fill_brewer(palette = "Accent") + # Change the default color
+  geom_bar(stat = "summary") + # Plot the mean
+  geom_errorbar(stat = "summary", width = 0.5) + # Add errorbars
+  ggtitle("Mean of Concavity Mean by Diagnosis") + # Add a title
+  xlab("Diagnosis") + # Rename x-axis label
+  ylab("Mean of Concavity Mean") + # Rename y-axis label
+  theme(legend.position = "none") # Remove the legend
+```
+
+*This braplot shows the mean of the `concavity_mean` measurements by `diagnosis`. According to the plot, the mean of `concavity_mean` is greater for malignant tumors than for benign tumors.*
+
+### 4. Dimensionality Reduction
+
+#### Perform PCA
+
+```{r}
+# Drop the `id` column
+breast_cancer_num = breast_cancer_joined %>% select(-id) %>%
+  select_if(is.numeric) %>% # Select all numeric variables
+  scale # Scale the values
+
+# Set the rownames of `breast_cancer_num` as `id`
+rownames(breast_cancer_num) = breast_cancer_joined$id
+
+# Perform PCA
+breast_cancer_pca = princomp(breast_cancer_num)
+
+# Summarize the results
+summary(breast_cancer_pca, loadings = T)
+```
+
+*The top part of the results summarizes the standard deviation, proportion of variance, and cumulative proportion for each PC.*
+
+*The bottom part summarizes the loadings. PC1 is a general axis. Higher scores on PC1 correspond with greater measurements for all features. Higher scores on PC2 correspond with greater measurements in `radius_mean`, `texture_mean`, `perimeter_mean`, and `area_mean`, but relatively smaller measurements for other features.*
+
+#### Create a scree plot
+
+```{r}
+# Calculate the eigenvalues by squaring the standard deviations
+eigval = (breast_cancer_pca$sdev) ^ 2
+
+# Proportion of variance explained by each PC
+varprop = round(eigval / sum(eigval), 2)
+
+# Create a scree plot
+ggplot() + 
+  geom_bar(aes(x = 1 : 10, y = varprop, fill = 1 : 10), stat = "identity") +  # Plot the proportion of variance explained by each PC
+  scale_fill_distiller(palette = "Spectral") + # Change the default color
+  geom_path(aes(x = 1 : 10, y = varprop)) +  # Add an elbow plot
+  geom_text(aes(x = 1 : 10, y = varprop, label = varprop), vjust = -0.25, 
+            size = 4) + # Add labels
+  ggtitle("% Variance Explained by Each PC") + # Add a title
+  scale_x_continuous("PC", # Rename the x-axis title
+                     breaks = 1 : 10) + # Adjust the breaks
+  scale_y_continuous("% Variance Explained", # Rename the y-axis title
+                     breaks = seq(0, .6, .2), # Adjust the breaks
+                     labels = scales::percent) + # Change y-axis labels to %
+  theme(legend.position = "none") # Remove the legend
+```
+
+*According to the elbow plot, I will keep the first 3 PCs, which will summarize `89%` of the total variability.*
+
+#### Create a loadings plot
+
+```{r}
+# Create a dataframe of the first 2 PCs
+breast_cancer_pca$loadings[1:10, 1:2] %>% as.data.frame %>% 
+  rownames_to_column %>% 
+  ggplot() + geom_hline(aes(yintercept = 0), lty = 2) +  # Plot the loadings
+  geom_vline(aes(xintercept = 0), lty = 2) + 
+  xlab("PC1") + ylab("PC2") + # Rename the axis titles
+  geom_segment(aes(x = 0, y = 0, xend = Comp.1, yend = Comp.2), arrow = arrow(),
+               col = "steelblue") + # Add arrows
+  geom_label(aes(x = Comp.1 * 1.2, y = Comp.2 * 1.2, label = rowname)) # Add labels
+```
+
+*In a loadings plot, the angle between 2 vectors represents the correlation between the 2 variables. In this loadings plot, the labels for `radius_mean`, `perimeter_mean`, and `area_mean`are overlapping each other. This is expected because these 3 variables are strongly correlated with each other.*
+
+#### Create a biplot
+
+```{r}
+fviz_pca_biplot(breast_cancer_pca, col.ind = "gray")
+```
+
+*This biplot combines the previous loadings plot with PC scores of all samples.*
+
+#### Create a scatterplot
+
+```{r}
+results = breast_cancer_joined %>%
+  # Add the first 4 PCs
+  mutate(PC1 = breast_cancer_pca$scores[, 1],
+         PC2 = breast_cancer_pca$scores[, 2], 
+         PC3 = breast_cancer_pca$scores[, 3], 
+         PC4 = breast_cancer_pca$scores[, 4])
+
+# Create a scatterplot of PC1 vs. PC2
+results %>% ggplot(aes(x = PC1, y = PC2)) + 
+  geom_point(aes(color = factor(diagnosis, # Color the dots by `diagnosis`
+                                labels = c("Benign", "Malignant"))), # Add labels to the legend
+             size = 3) + # Make the dots larger
+  scale_color_brewer(palette = "Accent") + # Change the colors
+  labs(title = "PC1 vs. PC2", # Add a title
+       color = "Diagnosis") # Rename the legend title
+
+# Create a scatterplot of PC3 vs. PC4
+results %>% ggplot(aes(x = PC3, y = PC4)) + 
+  geom_point(aes(color = factor(diagnosis, # Color the dots by `diagnosis`
+                                labels = c("Benign", "Malignant"))), # Add labels to the legend
+             size = 3) + # Make the dots larger
+  scale_color_brewer(palette = "Accent") + # Change the colors
+  labs(title = "PC3 vs. PC4", # Add a title
+       color = "Diagnosis") # Rename the legend title
+```
+
+*These 2 scatterplots plot the PC scores of the samples. In the scatterplots, we can see that PC1 separates the malignant and benign tumors. However, PCs 2-4 all fail to separate the 2 types of tumors.*
+
+```{R, echo=F}
+## DO NOT DELETE THIS BLOCK!
+sessionInfo()
+Sys.time()
+Sys.info()
+```

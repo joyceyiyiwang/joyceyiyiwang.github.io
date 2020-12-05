@@ -1,0 +1,498 @@
+---
+title: "Project 2"
+author: "SDS348 Fall 2020"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+---
+
+```{r global_options, include=FALSE}
+#DO NOT EDIT THIS CHUNK OR ANYTHING ABOVE IT!
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F, tidy=T, tidy.opts=list(width.cutoff=50), R.options=list(max.print=100,dplyr.print_max=100))
+
+class_diag<-function(probs,truth){
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE){
+    truth<-as.numeric(truth)-1}
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+```
+
+## Joyce Wang (yw9497)
+
+
+### 0. Introduction
+
+#### As a Biology major, I decided to use the Full Leaf Shape Data Set from the `DAGG` package.
+
+
+#### This dataset contains 9 measurements from 286 leaf samples in Australia:
+
+####  1. `bladelen`: leaf length in mm
+####  2. `petiole`: length of the petiole (the stalk that attaches the leaf blade to the stem) in mm
+####  3. `bladewid`: leaf width in mm
+####  4. `latitude`: latitude where the sample is taken from
+####  5. `logwid`: natural log of `bladewid`
+####  6. `logpet`: natural log of `petiole`
+####  7. `loglen`: natural log of `bladelen`
+####  8. `arch`: binary variable of the leaf architecture, where `0` represents plagiotropic (bilateral symmetry) and `1` represents orthotropic (radial symmetry)
+####  9. `location`: categorical variable of the location where the sample is taken from (`Sabah`, `Panama`, `Costa Rica`, `N Queensland`, `S Queensland`, or `Tasmania`)
+
+#### Since the categorical variable `location` can be a value with a space in it, I will first remove all the spaces from this column to prevent problems.
+
+#### Load packages
+
+```{R}
+library(DAAG)
+library(tidyverse)
+library(rstatix)
+library(RColorBrewer)
+library(lmtest)
+library(sandwich)
+library(plotROC)
+library(glmnet)
+```
+
+#### Load dataset
+
+```{R}
+data(leafshape)
+```
+
+#### Prepare dataset
+
+```{R}
+# Remove spaces from `location`
+leafshape$location = gsub("\\s+", "", leafshape$location)
+
+# Convert `arch` to a factor
+leafshape$arch = factor(leafshape$arch, labels = c("Plagiotropic", "Orthotropic"))
+
+# Take a glimpse
+glimpse(leafshape)
+```
+
+
+### 1. MANOVA
+
+#### Since `logwid`, `logpet`, and `loglen` are calculated from `bladewid`, `petiole`, and `bladelen`, respectively, it does not make sense to include them in the MANOVA analysis. Also drop `arch` as it is a binary variable. Furthermore, `latitude` should also be dropped because it violates MANOVA's assumptions by having the same value for all observations in a group
+
+```{R}
+# Perform MANOVA without columns `logwid`, `logpet`, `loglen`, `arch`, and `latitude`
+man = manova(cbind(bladelen, petiole, bladewid) ~ location, data = leafshape)
+summary(man)
+```
+
+*A one-way MANOVA was conducted to determine the effect of the locations (`Sabah`, `Panama`, `CostaRica`, `NQueensland`, `SQueensland`, and `Tasmania`) on three dependent variables (`bladelen`, `petiole`, and `bladewid`).*
+
+*Significant differences were found among the six locations for at least one of the dependent variables, `Pillai trace = 0.238`, `psudo F (15, 840) = 4.8256`, `p < 0.0001`.*
+
+#### Since overall MANOVA is significant, perform ANOVAs
+
+```{R}
+summary.aov(man)
+```
+
+*Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, using the Bonferroni method for controlling Type I error rates for multiple comparisons. The univariate ANOVAs for `bladelen` and `bladewid` were significant, `F(5, 280) = 12.789`, `p < 0.0001`, and `F(5, 280) = 5.6438`, `p < 0.0001`, respectively. The univariate ANOVA for `petiole` was not significant, `F(5, 280) = 1.5298`, `p = 0.1805`.*
+
+#### Since ANOVAs for `bladelen`and `bladewid` are significant, run post-hoc t-tests for them
+
+```{R}
+leafshape %>% select(bladelen, bladewid, location) %>% 
+  group_by(location) %>% summarize_all(mean)
+
+# Perform pairwise t-tests for `bladelen`
+pairwise.t.test(leafshape$bladelen, leafshape$location, p.adj = "none")
+
+# Perform pairwise t-tests for `bladewid`
+pairwise.t.test(leafshape$bladewid, leafshape$location, p.adj = "none")
+```
+
+*I have done 34 hypothesis tests (1 MANOVA, 3 ANOVAs, and 30 pairwise t-tests). Across this whole set of tests, the probability that I have made at least one type I error is `1 - (1 - 0.05) ^ 34 = 0.8252`. I will use `α = 0.05 / 34 = 0.001471` to keep the overall type I error rate at 0.05. After the adjustment, the pairwise t-tests between many locations for leaf length and leaf width are no longer significant, including:*
+
+*For leaf length: Costa Rica and Panama, Costa Rica and Sabah, N Queensland and Panama, N Queensland and Sabah, N Queensland and S Queensland, and N Queensland and Tasmania.*
+
+*For leaf width: Costa Rica and Sabah, Costa Rica and S Queensland, N Queensland and Panama, Panama and Tasmania, and Sabah and Tasmania.*
+
+#### Check assumptions
+
+```{R}
+group = leafshape$location
+DVs = leafshape %>% select(bladelen, bladewid)
+
+# Test multivariate normality for each group (null: assumption met)
+sapply(split(DVs, group), mshapiro_test)
+```
+
+*MANOVA assumptions are: 1. random samples, independent observations; 2. multivariate normality of DVs; 3. homogeneity of within-group covariance matrices; 4. linear relationships among DVs; 5. no extreme univariate or multivariate outliers; and 6. no multicollinearity. The assumptions are not met because  multivariate normality is not met, suggested by multiple locations having `p < 0.05` for the Shapiro-Wilk test for multivariate normality.*
+
+
+### 2. Randomization
+
+#### Test if there is a difference in mean leaf length for samples taken from Sabah and the ones taken from Tasmania
+
+*H0: Mean leaf length is the same for N Queensland samples vs. S Queensland samples.*
+
+*HA: Mean leaf length is different for N Queensland samples vs. S Queensland samples.*
+
+```{R}
+set.seed(348)
+
+# Get Sabah samples and Panama samples
+leafshape_2 = leafshape %>% filter(location %in% c("NQueensland", "SQueensland"))
+
+# Store the results of the randomization test
+mean_diffs = c()
+
+# Randomization test
+for(i in 1 : 5000){
+  temp = leafshape_2 %>% mutate(bladelen = sample(leafshape_2$bladelen))
+  mean_diffs[i] = mean(temp$bladelen[temp$location == "NQueensland"]) -
+    mean(temp$bladelen[temp$location == "SQueensland"])
+}
+
+# Calculate the differences in mean weights (NQueensland - SQueensland)
+obs_diff = mean(leafshape_2$bladelen[leafshape_2$location == "NQueensland"]) -
+  mean(leafshape_2$bladelen[leafshape_2$location == "SQueensland"])
+
+# p-value for leaf length
+mean(mean_diffs > obs_diff | mean_diffs < -obs_diff)
+```
+
+*Since `p-value = 0.0186` and is less than `0.05`, I reject H0. There is a difference between the mean leaf length for N Queensland samples vs. S Queensland samples.*
+
+#### Plot for null distribution and the test statistic
+
+```{R}
+# Create a data frame
+temp = data.frame(mean_diffs)
+temp = temp %>% 
+  mutate(significance = # Add a column for coloring
+           ifelse((mean_diffs < -obs_diff | mean_diffs > obs_diff), 
+                  "Sig", "NotSig"))
+temp$significance = factor(temp$significance, 
+                           levels = c("Sig", "NotSig"),
+                           labels = c("Significant", "Not Significant"))
+
+ggplot(temp, aes(x = mean_diffs, fill = significance)) + 
+  geom_histogram() + # Create a histogram
+  scale_fill_brewer(palette = "Pastel1") +
+  geom_vline(xintercept = -obs_diff, size = 1) + # Add a line
+  geom_vline(xintercept = obs_diff, size = 1) + # Add a line
+  labs(title = "Null Distribution and Test Statistic",
+       x = "Mean Differences",
+       y = "Count",
+       fill = "Significance")
+  
+```
+
+
+### 3. Linear Regression Model
+
+#### Create a linear regression model
+
+```{R}
+# Mean center the numeric variable
+leafshape_3 = leafshape
+leafshape_3$bladewid_c = leafshape_3$bladewid - mean(leafshape_3$bladewid)
+
+# Predict leaf length based on leaf width and length of petiole
+fit = lm(bladelen ~ arch * bladewid_c, data = leafshape_3)
+summary(fit)
+```
+
+*Mean/predicted leaf length for samples with plagiotropic leaf architecture and average leaf width is `18.571` mm.*
+
+*Samples with orthotropic leaf architecture and average leaf width have predicted leaf length that is `0.637` mm higher than samples with plagiotropic leaf architecture and average leaf width.*
+
+*For every 1-unit increase in leaf width, predicted leaf length increases by `2.373` mm.*
+
+*Slope of leaf width on leaf length for samples with orthotropic leaf architecture is `1.352` mm smaller than for samples with plagiotropic leaf architecture.*
+
+#### Plot the regression
+
+```{R}
+ggplot(leafshape_3, aes(x = bladewid, y = bladelen, color = arch)) +
+  scale_color_brewer(palette = "Set2") + 
+  geom_smooth(method = "lm", se = F, fullrange = T, size = 1) +
+  geom_point(size = 2.5) + 
+  geom_vline(xintercept = 0, lty = 2) + # Add a line at 0 leaf width
+  geom_vline(xintercept = mean(leafshape_3$bladewid)) + # Add a line at average leaf width
+  labs(title = "Leaf Length vs. Leaf Width by Leaf Archetecture",
+       x = "Leaf Width",
+       y = "Leaf Length",
+       color = "Leaf Architecture")
+```
+
+#### Check assumptions
+
+```{R}
+# Check linearity
+resids = fit$residuals
+fitvals = fit$fitted.values
+ggplot() + geom_point(aes(x = fitvals, y = resids)) + 
+  geom_hline(yintercept = 0, col = "red")
+# Assumption of linearity met
+
+# Check normality
+ks.test(resids, "pnorm", sd = sd(resids))
+# Assumption of normality not met
+
+# Check homoscedasticity
+bptest(fit)
+# Assumption of homoscedasticity not met
+```
+
+*The assumption of linearity is met. However, the assumptions of normality and homoscedasticity are not met because the results from Kolmogorov-Smirnov and Breusch-Pagan tests are significant.*
+
+#### Heteroscedasticity robust standard errors
+
+```{r}
+coeftest(fit, vcov = vcovHC(fit))
+
+# Normal-theory
+coeftest(fit)[, 3 : 4]
+```
+
+*For `(Intercept)`, `bladewid_c`, and `archOrthotropic:bladewid_c`, the t-statistic and p-value are both increased. For `archOrthotropic`, the t-statistic is decreased and p-value is increased. Everything significant before is still significant.*
+
+#### Proportion of variation explained
+
+```{r}
+summary(fit)$r.squared
+```
+
+*`65.02%` of the variation in leaf length is explained by my model.*
+
+
+### 4. Linear Regression Model with Bootstrapped Standard Errors
+
+#### Bootstrapped Standard Errors
+
+```{r}
+set.seed(348)
+
+samp_distn = replicate(5000, {
+  boot_dat = sample_frac(leafshape, replace = T) # Take bootstrap sample of rows
+  boot_dat$bladewid_c = boot_dat$bladewid - mean(boot_dat$bladewid) # Mean center the variable
+  boot_dat$arch = factor(boot_dat$arch, labels = c("Plagiotropic", "Orthotropic"))
+  fit2 = lm(bladelen ~ arch * bladewid_c, data = boot_dat) # Fit model on bootstrap sample
+  coef(fit2) # Save coefs
+})
+
+# Estimated SEs
+samp_distn %>% t %>% as.data.frame %>% summarize_all(sd)
+
+# Normal-theory SEs
+coeftest(fit)[, 1 : 2]
+
+# Robust SEs
+coeftest(fit, vcov = vcovHC(fit))[, 1 : 2]
+```
+
+*The SEs from bootstrapped standard errors are pretty similar to the original SEs and robust SEs. For `(Intercept)`, the bootstrapped SE is greater than the original SE and robust SE. For `archOrthotropic` and `archOrthotropic:bladewid_c`, the bootstrapped SE is greater than the original SE but smaller than the robust SE. For `bladewid_c`, the boostrapped SE is smaller than the original SE and robust SE.*
+
+
+### 5. Logistic Regression Model
+
+#### Create a logistic regression model
+
+```{r}
+# Predict leaf architecture from location and leaf length
+fit2 = glm(arch ~ location + bladelen, family = "binomial", data = leafshape)
+coeftest(fit2)
+```
+
+*Controlling for leaf length, N Queensland samples and Costa Rica samples are significantly different. Odds of being orthotropic for N Queensland samples is e ^ (1.433) = 4.190 times odds for Costa Rica samples.*
+
+*Controlling for leaf length, Panama samples and Costa Rica samples are not significantly different.*
+
+*Controlling for leaf length, Sabah samples and Costa Rica samples are not significantly different.*
+
+*Controlling for leaf length, S Queensland samples and Costa Rica samples are significantly different. Odds of being orthotropic for S Queensland samples is e ^ (3.455) = 31.662 times odds for Costa Rica samples.*
+
+*Controlling for leaf length, Tasmania samples and Costa Rica samples are significantly different. Odds of being orthotropic for Tasmania samples is e ^ (5.491) = 242.410 times odds for Costa Rica samples.*
+
+*Controlling for location, for every 1-unit increase in leaf length, odds of being orthotropic change by a factor of e ^ (0.190) = 1.209.*
+
+#### Confusion matrix
+
+```{r}
+probs = predict(fit2, type = "response")
+table(predict = as.numeric(probs > .5), truth = leafshape$arch) %>% addmargins
+```
+
+#### Compute classification diagnositics
+
+```{r}
+class_diag(probs, leafshape$arch)
+```
+
+*For my model, Accuracy is `0.783`, Sensitivity is `0.532`, Specificity is `0.906`, Precision is `0.735`, and AUC is `0.844`. Even though the Sensitivity is a little bit low, the AUC is good.*
+
+#### Density plot
+
+```{r}
+leafshape %>% mutate(logit = probs) %>%
+  ggplot(aes(logit, fill = arch)) + 
+  scale_fill_brewer(palette = "Set2") +
+  geom_density(alpha = 0.5, size = 0.5) +
+  labs(title = "Density vs. Predictor by Leaf Architecture",
+       x = "Predictor (logit)",
+       y = "Density",
+       fill = "Leaf Architecture")
+```
+
+#### ROC curve
+
+```{r}
+# `geom_roc()` does not recognize factors with labels, so create a new dataframe
+leafshape_4 = leafshape %>% mutate(arch = ifelse(arch == "Plagiotropic", 0, 1))
+
+# ROC plot
+ROCplot = 
+  leafshape_4 %>% 
+  ggplot() + geom_roc(aes(d = arch, m = probs), n.cuts = 0) 
+ROCplot
+
+# AUC
+calc_auc(ROCplot)
+```
+
+*The ROC curve looks good because its area under the curve is large. The calculated AUC also suggests that this model is good.*
+
+
+### 6. Logistic Regression Model with More Variables
+
+#### Create a logistic regression model
+
+```{r}
+# Predict leaf architecture from the rest of the variables
+fit3 = glm(arch ~ ., family = "binomial", data = leafshape)
+coeftest(fit3)
+```
+
+#### Compute classification diagnositics
+
+```{r}
+probs2 = predict(fit3, type = "response")
+class_diag(probs2, leafshape$arch)
+```
+
+*For my model, Accuracy is `0.892`, Sensitivity is `0.809`, Specificity is `0.932`, Precision is `0.854`, and AUC is `0.931`. According to the AUC, this model is doing great.*
+
+#### 10-fold CV
+
+```{R}
+set.seed(348)
+k=10
+
+# Randomly order rows
+data = leafshape[sample(nrow(leafshape)), ]
+# Create folds
+folds = cut(seq(1 : nrow(leafshape)), breaks = k, labels = F)
+# Store the results
+diags = NULL
+for(i in 1 : k){
+  # Create training and test sets
+  train = data[folds != i, ]
+  test = data[folds == i, ]
+  # Truth labels for fold i
+  truth = test$arch
+  # Train model on training set (all but fold i)
+  fit4 = glm(arch ~ ., data = train, family = "binomial")
+  # Test model on test set (fold i)
+  probs = predict(fit4, newdata = test, type = "response")
+  # Get diagnostics for fold i
+  diags = rbind(diags, class_diag(probs, truth))
+}
+
+# Average diagnostics across all k folds
+summarize_all(diags, mean)
+```
+
+*For the 10-fold CV, Accuracy is `0.864`, Sensitivity is `0.756`, Specificity is `0.921`, Precision is `0.825`, and AUC is `0.911`. The metrics are lower than the in-sample ones, but the model is still great according to the high AUC.*
+
+#### LASSO
+
+```{r}
+set.seed(348)
+
+# Predictor variables
+preds = model.matrix(fit3)[, -1]
+preds = scale(preds)
+# Response variable
+res = as.matrix(leafshape$arch)
+# Cross-validation
+cv.lasso1 = cv.glmnet(x = preds, y = res, family = "binomial")
+# Lasso regularization
+lasso_fit = glmnet(x = preds, y = res, family = "binomial", alpha = 1, 
+                   lambda = cv.lasso1$lambda.1se)
+coef(lasso_fit)
+```
+
+*The variables that are retained are: `bladelen`, `latitude`, and `logpet`.*
+
+#### 10-fold CV with variables from LASSO
+
+```{R}
+set.seed(348)
+k=10
+
+# Randomly order rows
+data = leafshape[sample(nrow(leafshape)), ]
+# Create folds
+folds = cut(seq(1 : nrow(leafshape)), breaks = k, labels = F)
+# Store the results
+diags = NULL
+for(i in 1 : k){
+  # Create training and test sets
+  train = data[folds != i, ]
+  test = data[folds == i, ]
+  # Truth labels for fold i
+  truth = test$arch
+  # Train model on training set (all but fold i)
+  fit5 = glm(arch ~ bladelen + latitude + logpet, data = train, 
+             family = "binomial")
+  # Test model on test set (fold i)
+  probs = predict(fit5, newdata = test, type = "response")
+  # Get diagnostics for fold i
+  diags = rbind(diags, class_diag(probs, truth))
+}
+
+# Average diagnostics across all k folds
+summarize_all(diags, mean)
+```
+
+*Even though this model has a lower AUC than my logistic regressions above do, it is still a good model overall. However, this suggests that the original model is probably not overfitting.*
+
+
+```{R, echo=F}
+## DO NOT DELETE THIS BLOCK!
+sessionInfo()
+Sys.time()
+Sys.info()
+```

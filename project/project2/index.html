@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Joyce Wang" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 2</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project2/">Project 2</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="joyce-wang-yw9497" class="section level2">
+<h2>Joyce Wang (yw9497)</h2>
+<div id="introduction" class="section level3">
+<h3>0. Introduction</h3>
+<div id="as-a-biology-major-i-decided-to-use-the-full-leaf-shape-data-set-from-the-dagg-package." class="section level4">
+<h4>As a Biology major, I decided to use the Full Leaf Shape Data Set from the <code>DAGG</code> package.</h4>
+</div>
+<div id="this-dataset-contains-9-measurements-from-286-leaf-samples-in-australia" class="section level4">
+<h4>This dataset contains 9 measurements from 286 leaf samples in Australia:</h4>
+</div>
+<div id="bladelen-leaf-length-in-mm" class="section level4">
+<h4>1. <code>bladelen</code>: leaf length in mm</h4>
+</div>
+<div id="petiole-length-of-the-petiole-the-stalk-that-attaches-the-leaf-blade-to-the-stem-in-mm" class="section level4">
+<h4>2. <code>petiole</code>: length of the petiole (the stalk that attaches the leaf blade to the stem) in mm</h4>
+</div>
+<div id="bladewid-leaf-width-in-mm" class="section level4">
+<h4>3. <code>bladewid</code>: leaf width in mm</h4>
+</div>
+<div id="latitude-latitude-where-the-sample-is-taken-from" class="section level4">
+<h4>4. <code>latitude</code>: latitude where the sample is taken from</h4>
+</div>
+<div id="logwid-natural-log-of-bladewid" class="section level4">
+<h4>5. <code>logwid</code>: natural log of <code>bladewid</code></h4>
+</div>
+<div id="logpet-natural-log-of-petiole" class="section level4">
+<h4>6. <code>logpet</code>: natural log of <code>petiole</code></h4>
+</div>
+<div id="loglen-natural-log-of-bladelen" class="section level4">
+<h4>7. <code>loglen</code>: natural log of <code>bladelen</code></h4>
+</div>
+<div id="arch-binary-variable-of-the-leaf-architecture-where-0-represents-plagiotropic-bilateral-symmetry-and-1-represents-orthotropic-radial-symmetry" class="section level4">
+<h4>8. <code>arch</code>: binary variable of the leaf architecture, where <code>0</code> represents plagiotropic (bilateral symmetry) and <code>1</code> represents orthotropic (radial symmetry)</h4>
+</div>
+<div id="location-categorical-variable-of-the-location-where-the-sample-is-taken-from-sabah-panama-costa-rica-n-queensland-s-queensland-or-tasmania" class="section level4">
+<h4>9. <code>location</code>: categorical variable of the location where the sample is taken from (<code>Sabah</code>, <code>Panama</code>, <code>Costa Rica</code>, <code>N Queensland</code>, <code>S Queensland</code>, or <code>Tasmania</code>)</h4>
+</div>
+<div id="since-the-categorical-variable-location-can-be-a-value-with-a-space-in-it-i-will-first-remove-all-the-spaces-from-this-column-to-prevent-problems." class="section level4">
+<h4>Since the categorical variable <code>location</code> can be a value with a space in it, I will first remove all the spaces from this column to prevent problems.</h4>
+</div>
+<div id="load-packages" class="section level4">
+<h4>Load packages</h4>
+<pre class="r"><code>library(DAAG)
+library(tidyverse)
+library(rstatix)
+library(RColorBrewer)
+library(lmtest)
+library(sandwich)
+library(plotROC)
+library(glmnet)</code></pre>
+</div>
+<div id="load-dataset" class="section level4">
+<h4>Load dataset</h4>
+<pre class="r"><code>data(leafshape)</code></pre>
+</div>
+<div id="prepare-dataset" class="section level4">
+<h4>Prepare dataset</h4>
+<pre class="r"><code># Remove spaces from `location`
+leafshape$location = gsub(&quot;\\s+&quot;, &quot;&quot;, leafshape$location)
+
+# Convert `arch` to a factor
+leafshape$arch = factor(leafshape$arch, labels = c(&quot;Plagiotropic&quot;, 
+    &quot;Orthotropic&quot;))
+
+# Take a glimpse
+glimpse(leafshape)</code></pre>
+<pre><code>## Rows: 286
+## Columns: 9
+## $ bladelen &lt;dbl&gt; 33.88, 33.32, 29.35, 26.87, 26.67, 24.23, 23.85, 23.30, 23.1…
+## $ petiole  &lt;dbl&gt; 1.402632, 1.016260, 2.392025, 0.808787, 0.802767, 1.490145, …
+## $ bladewid &lt;dbl&gt; 13.65, 10.26, 12.21, 8.70, 8.41, 7.70, 5.69, 8.41, 7.95, 6.9…
+## $ latitude &lt;dbl&gt; 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, …
+## $ logwid   &lt;dbl&gt; 2.613740, 2.328253, 2.502255, 2.163323, 2.129421, 2.041220, …
+## $ logpet   &lt;dbl&gt; 0.338350472, 0.016129222, 0.872140288, -0.212219685, -0.2196…
+## $ loglen   &lt;dbl&gt; 3.522825, 3.506158, 3.379293, 3.291010, 3.283539, 3.187592, …
+## $ arch     &lt;fct&gt; Plagiotropic, Plagiotropic, Plagiotropic, Plagiotropic, Plag…
+## $ location &lt;chr&gt; &quot;Sabah&quot;, &quot;Sabah&quot;, &quot;Sabah&quot;, &quot;Sabah&quot;, &quot;Sabah&quot;, &quot;Sabah&quot;, &quot;Sabah…</code></pre>
+</div>
+</div>
+<div id="manova" class="section level3">
+<h3>1. MANOVA</h3>
+<div id="since-logwid-logpet-and-loglen-are-calculated-from-bladewid-petiole-and-bladelen-respectively-it-does-not-make-sense-to-include-them-in-the-manova-analysis.-also-drop-arch-as-it-is-a-binary-variable.-furthermore-latitude-should-also-be-dropped-because-it-violates-manovas-assumptions-by-having-the-same-value-for-all-observations-in-a-group" class="section level4">
+<h4>Since <code>logwid</code>, <code>logpet</code>, and <code>loglen</code> are calculated from <code>bladewid</code>, <code>petiole</code>, and <code>bladelen</code>, respectively, it does not make sense to include them in the MANOVA analysis. Also drop <code>arch</code> as it is a binary variable. Furthermore, <code>latitude</code> should also be dropped because it violates MANOVA's assumptions by having the same value for all observations in a group</h4>
+<pre class="r"><code># Perform MANOVA without columns `logwid`,
+# `logpet`, `loglen`, `arch`, and `latitude`
+man = manova(cbind(bladelen, petiole, bladewid) ~ location, 
+    data = leafshape)
+summary(man)</code></pre>
+<pre><code>##            Df Pillai approx F num Df den Df   Pr(&gt;F)    
+## location    5  0.238   4.8256     15    840 4.53e-09 ***
+## Residuals 280                                           
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><em>A one-way MANOVA was conducted to determine the effect of the locations (<code>Sabah</code>, <code>Panama</code>, <code>CostaRica</code>, <code>NQueensland</code>, <code>SQueensland</code>, and <code>Tasmania</code>) on three dependent variables (<code>bladelen</code>, <code>petiole</code>, and <code>bladewid</code>).</em></p>
+<p><em>Significant differences were found among the six locations for at least one of the dependent variables, <code>Pillai trace = 0.238</code>, <code>psudo F (15, 840) = 4.8256</code>, <code>p &lt; 0.0001</code>.</em></p>
+</div>
+<div id="since-overall-manova-is-significant-perform-anovas" class="section level4">
+<h4>Since overall MANOVA is significant, perform ANOVAs</h4>
+<pre class="r"><code>summary.aov(man)</code></pre>
+<pre><code>##  Response bladelen :
+##              Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+## location      5  4427.8  885.57  12.789 3.302e-11 ***
+## Residuals   280 19387.9   69.24                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response petiole :
+##              Df Sum Sq Mean Sq F value Pr(&gt;F)
+## location      5  209.9  41.983  1.5298 0.1805
+## Residuals   280 7684.0  27.443               
+## 
+##  Response bladewid :
+##              Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## location      5  795.0 158.992  5.6438 5.632e-05 ***
+## Residuals   280 7887.9  28.171                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><em>Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, using the Bonferroni method for controlling Type I error rates for multiple comparisons. The univariate ANOVAs for <code>bladelen</code> and <code>bladewid</code> were significant, <code>F(5, 280) = 12.789</code>, <code>p &lt; 0.0001</code>, and <code>F(5, 280) = 5.6438</code>, <code>p &lt; 0.0001</code>, respectively. The univariate ANOVA for <code>petiole</code> was not significant, <code>F(5, 280) = 1.5298</code>, <code>p = 0.1805</code>.</em></p>
+</div>
+<div id="since-anovas-for-bladelenand-bladewid-are-significant-run-post-hoc-t-tests-for-them" class="section level4">
+<h4>Since ANOVAs for <code>bladelen</code>and <code>bladewid</code> are significant, run post-hoc t-tests for them</h4>
+<pre class="r"><code>leafshape %&gt;% select(bladelen, bladewid, location) %&gt;% 
+    group_by(location) %&gt;% summarize_all(mean)</code></pre>
+<pre><code>## # A tibble: 6 x 3
+##   location    bladelen bladewid
+##   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;
+## 1 CostaRica      22.7      9.39
+## 2 NQueensland    15.2      5.28
+## 3 Panama         18.5      7.55
+## 4 Sabah          19.6      6.92
+## 5 SQueensland    11.4      5.50
+## 6 Tasmania        5.80     1.70</code></pre>
+<pre class="r"><code># Perform pairwise t-tests for `bladelen`
+pairwise.t.test(leafshape$bladelen, leafshape$location, 
+    p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  leafshape$bladelen and leafshape$location 
+## 
+##             CostaRica NQueensland Panama  Sabah   SQueensland
+## NQueensland 3.6e-06   -           -       -       -          
+## Panama      0.0105    0.0330      -       -       -          
+## Sabah       0.0383    0.0021      0.4642  -       -          
+## SQueensland 1.0e-08   0.0430      0.0002  6.1e-06 -          
+## Tasmania    5.1e-08   0.0018      3.0e-05 4.0e-06 0.0745     
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code># Perform pairwise t-tests for `bladewid`
+pairwise.t.test(leafshape$bladewid, leafshape$location, 
+    p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  leafshape$bladewid and leafshape$location 
+## 
+##             CostaRica NQueensland Panama Sabah  SQueensland
+## NQueensland 6.4e-05   -           -      -      -          
+## Panama      0.0761    0.0226      -      -      -          
+## Sabah       0.0103    0.0705      0.5019 -      -          
+## SQueensland 0.0015    0.8534      0.0872 0.2067 -          
+## Tasmania    8.0e-05   0.0594      0.0024 0.0055 0.0594     
+## 
+## P value adjustment method: none</code></pre>
+<p><em>I have done 34 hypothesis tests (1 MANOVA, 3 ANOVAs, and 30 pairwise t-tests). Across this whole set of tests, the probability that I have made at least one type I error is <code>1 - (1 - 0.05) ^ 34 = 0.8252</code>. I will use <code>α = 0.05 / 34 = 0.001471</code> to keep the overall type I error rate at 0.05. After the adjustment, the pairwise t-tests between many locations for leaf length and leaf width are no longer significant, including:</em></p>
+<p><em>For leaf length: Costa Rica and Panama, Costa Rica and Sabah, N Queensland and Panama, N Queensland and Sabah, N Queensland and S Queensland, and N Queensland and Tasmania.</em></p>
+<p><em>For leaf width: Costa Rica and Sabah, Costa Rica and S Queensland, N Queensland and Panama, Panama and Tasmania, and Sabah and Tasmania.</em></p>
+</div>
+<div id="check-assumptions" class="section level4">
+<h4>Check assumptions</h4>
+<pre class="r"><code>group = leafshape$location
+DVs = leafshape %&gt;% select(bladelen, bladewid)
+
+# Test multivariate normality for each group (null:
+# assumption met)
+sapply(split(DVs, group), mshapiro_test)</code></pre>
+<pre><code>##           CostaRica    NQueensland  Panama     Sabah        SQueensland 
+## statistic 0.7244706    0.599601     0.5151247  0.5370548    0.5685613   
+## p.value   2.338322e-08 1.241379e-11 3.2639e-12 1.749155e-14 2.177992e-08
+##           Tasmania  
+## statistic 0.8023989 
+## p.value   0.02174975</code></pre>
+<p><em>MANOVA assumptions are: 1. random samples, independent observations; 2. multivariate normality of DVs; 3. homogeneity of within-group covariance matrices; 4. linear relationships among DVs; 5. no extreme univariate or multivariate outliers; and 6. no multicollinearity. The assumptions are not met because multivariate normality is not met, suggested by multiple locations having <code>p &lt; 0.05</code> for the Shapiro-Wilk test for multivariate normality.</em></p>
+</div>
+</div>
+<div id="randomization" class="section level3">
+<h3>2. Randomization</h3>
+<div id="test-if-there-is-a-difference-in-mean-leaf-length-for-samples-taken-from-sabah-and-the-ones-taken-from-tasmania" class="section level4">
+<h4>Test if there is a difference in mean leaf length for samples taken from Sabah and the ones taken from Tasmania</h4>
+<p><em>H0: Mean leaf length is the same for N Queensland samples vs. S Queensland samples.</em></p>
+<p><em>HA: Mean leaf length is different for N Queensland samples vs. S Queensland samples.</em></p>
+<pre class="r"><code>set.seed(348)
+
+# Get Sabah samples and Panama samples
+leafshape_2 = leafshape %&gt;% filter(location %in% c(&quot;NQueensland&quot;, 
+    &quot;SQueensland&quot;))
+
+# Store the results of the randomization test
+mean_diffs = c()
+
+# Randomization test
+for (i in 1:5000) {
+    temp = leafshape_2 %&gt;% mutate(bladelen = sample(leafshape_2$bladelen))
+    mean_diffs[i] = mean(temp$bladelen[temp$location == 
+        &quot;NQueensland&quot;]) - mean(temp$bladelen[temp$location == 
+        &quot;SQueensland&quot;])
+}
+
+# Calculate the differences in mean weights
+# (NQueensland - SQueensland)
+obs_diff = mean(leafshape_2$bladelen[leafshape_2$location == 
+    &quot;NQueensland&quot;]) - mean(leafshape_2$bladelen[leafshape_2$location == 
+    &quot;SQueensland&quot;])
+
+# p-value for leaf length
+mean(mean_diffs &gt; obs_diff | mean_diffs &lt; -obs_diff)</code></pre>
+<pre><code>## [1] 0.0186</code></pre>
+<p><em>Since <code>p-value = 0.0186</code> and is less than <code>0.05</code>, I reject H0. There is a difference between the mean leaf length for N Queensland samples vs. S Queensland samples.</em></p>
+</div>
+<div id="plot-for-null-distribution-and-the-test-statistic" class="section level4">
+<h4>Plot for null distribution and the test statistic</h4>
+<pre class="r"><code># Create a data frame
+temp = data.frame(mean_diffs)
+temp = temp %&gt;% 
+  mutate(significance = # Add a column for coloring
+           ifelse((mean_diffs &lt; -obs_diff | mean_diffs &gt; obs_diff), 
+                  &quot;Sig&quot;, &quot;NotSig&quot;))
+temp$significance = factor(temp$significance, 
+                           levels = c(&quot;Sig&quot;, &quot;NotSig&quot;),
+                           labels = c(&quot;Significant&quot;, &quot;Not Significant&quot;))
+
+ggplot(temp, aes(x = mean_diffs, fill = significance)) + 
+  geom_histogram() + # Create a histogram
+  scale_fill_brewer(palette = &quot;Pastel1&quot;) +
+  geom_vline(xintercept = -obs_diff, size = 1) + # Add a line
+  geom_vline(xintercept = obs_diff, size = 1) + # Add a line
+  labs(title = &quot;Null Distribution and Test Statistic&quot;,
+       x = &quot;Mean Differences&quot;,
+       y = &quot;Count&quot;,
+       fill = &quot;Significance&quot;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="linear-regression-model" class="section level3">
+<h3>3. Linear Regression Model</h3>
+<div id="create-a-linear-regression-model" class="section level4">
+<h4>Create a linear regression model</h4>
+<pre class="r"><code># Mean center the numeric variable
+leafshape_3 = leafshape
+leafshape_3$bladewid_c = leafshape_3$bladewid - mean(leafshape_3$bladewid)
+
+# Predict leaf length based on leaf width and
+# length of petiole
+fit = lm(bladelen ~ arch * bladewid_c, data = leafshape_3)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = bladelen ~ arch * bladewid_c, data = leafshape_3)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -17.696  -2.474  -0.596   1.832  39.010 
+## 
+## Coefficients:
+##                            Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                 18.5713     0.4431  41.916  &lt; 2e-16 ***
+## archOrthotropic              0.6365     0.7343   0.867    0.387    
+## bladewid_c                   2.3731     0.1653  14.353  &lt; 2e-16 ***
+## archOrthotropic:bladewid_c  -1.3522     0.1782  -7.589 4.74e-13 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 5.435 on 282 degrees of freedom
+## Multiple R-squared:  0.6502, Adjusted R-squared:  0.6465 
+## F-statistic: 174.7 on 3 and 282 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p><em>Mean/predicted leaf length for samples with plagiotropic leaf architecture and average leaf width is <code>18.571</code> mm.</em></p>
+<p><em>Samples with orthotropic leaf architecture and average leaf width have predicted leaf length that is <code>0.637</code> mm higher than samples with plagiotropic leaf architecture and average leaf width.</em></p>
+<p><em>For every 1-unit increase in leaf width, predicted leaf length increases by <code>2.373</code> mm.</em></p>
+<p><em>Slope of leaf width on leaf length for samples with orthotropic leaf architecture is <code>1.352</code> mm smaller than for samples with plagiotropic leaf architecture.</em></p>
+</div>
+<div id="plot-the-regression" class="section level4">
+<h4>Plot the regression</h4>
+<pre class="r"><code>ggplot(leafshape_3, aes(x = bladewid, y = bladelen, color = arch)) +
+  scale_color_brewer(palette = &quot;Set2&quot;) + 
+  geom_smooth(method = &quot;lm&quot;, se = F, fullrange = T, size = 1) +
+  geom_point(size = 2.5) + 
+  geom_vline(xintercept = 0, lty = 2) + # Add a line at 0 leaf width
+  geom_vline(xintercept = mean(leafshape_3$bladewid)) + # Add a line at average leaf width
+  labs(title = &quot;Leaf Length vs. Leaf Width by Leaf Archetecture&quot;,
+       x = &quot;Leaf Width&quot;,
+       y = &quot;Leaf Length&quot;,
+       color = &quot;Leaf Architecture&quot;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="check-assumptions-1" class="section level4">
+<h4>Check assumptions</h4>
+<pre class="r"><code># Check linearity
+resids = fit$residuals
+fitvals = fit$fitted.values
+ggplot() + geom_point(aes(x = fitvals, y = resids)) + 
+    geom_hline(yintercept = 0, col = &quot;red&quot;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Assumption of linearity met
+
+# Check normality
+ks.test(resids, &quot;pnorm&quot;, sd = sd(resids))</code></pre>
+<pre><code>## 
+##  One-sample Kolmogorov-Smirnov test
+## 
+## data:  resids
+## D = 0.12117, p-value = 0.0004504
+## alternative hypothesis: two-sided</code></pre>
+<pre class="r"><code># Assumption of normality not met
+
+# Check homoscedasticity
+bptest(fit)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit
+## BP = 45.587, df = 3, p-value = 6.941e-10</code></pre>
+<pre class="r"><code># Assumption of homoscedasticity not met</code></pre>
+<p><em>The assumption of linearity is met. However, the assumptions of normality and homoscedasticity are not met because the results from Kolmogorov-Smirnov and Breusch-Pagan tests are significant.</em></p>
+</div>
+<div id="heteroscedasticity-robust-standard-errors" class="section level4">
+<h4>Heteroscedasticity robust standard errors</h4>
+<pre class="r"><code>coeftest(fit, vcov = vcovHC(fit))</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##                            Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)                18.57129    0.34550 53.7518 &lt; 2.2e-16 ***
+## archOrthotropic             0.63652    0.83532  0.7620    0.4467    
+## bladewid_c                  2.37315    0.15473 15.3375 &lt; 2.2e-16 ***
+## archOrthotropic:bladewid_c -1.35216    0.23170 -5.8358 1.468e-08 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code># Normal-theory
+coeftest(fit)[, 3:4]</code></pre>
+<pre><code>##                               t value      Pr(&gt;|t|)
+## (Intercept)                41.9164521 3.682437e-123
+## archOrthotropic             0.8668657  3.867526e-01
+## bladewid_c                 14.3530831  1.897497e-35
+## archOrthotropic:bladewid_c -7.5885413  4.739883e-13</code></pre>
+<p><em>For <code>(Intercept)</code>, <code>bladewid_c</code>, and <code>archOrthotropic:bladewid_c</code>, the t-statistic and p-value are both increased. For <code>archOrthotropic</code>, the t-statistic is decreased and p-value is increased. Everything significant before is still significant.</em></p>
+</div>
+<div id="proportion-of-variation-explained" class="section level4">
+<h4>Proportion of variation explained</h4>
+<pre class="r"><code>summary(fit)$r.squared</code></pre>
+<pre><code>## [1] 0.6501753</code></pre>
+<p><em><code>65.02%</code> of the variation in leaf length is explained by my model.</em></p>
+</div>
+</div>
+<div id="linear-regression-model-with-bootstrapped-standard-errors" class="section level3">
+<h3>4. Linear Regression Model with Bootstrapped Standard Errors</h3>
+<div id="bootstrapped-standard-errors" class="section level4">
+<h4>Bootstrapped Standard Errors</h4>
+<pre class="r"><code>set.seed(348)
+
+samp_distn = replicate(5000, {
+    boot_dat = sample_frac(leafshape, replace = T)  # Take bootstrap sample of rows
+    boot_dat$bladewid_c = boot_dat$bladewid - mean(boot_dat$bladewid)  # Mean center the variable
+    boot_dat$arch = factor(boot_dat$arch, labels = c(&quot;Plagiotropic&quot;, 
+        &quot;Orthotropic&quot;))
+    fit2 = lm(bladelen ~ arch * bladewid_c, data = boot_dat)  # Fit model on bootstrap sample
+    coef(fit2)  # Save coefs
+})
+
+# Estimated SEs
+samp_distn %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept) archOrthotropic bladewid_c archOrthotropic:bladewid_c
+## 1   0.8347581       0.8016289   0.141845                  0.2314173</code></pre>
+<pre class="r"><code># Normal-theory SEs
+coeftest(fit)[, 1:2]</code></pre>
+<pre><code>##                              Estimate Std. Error
+## (Intercept)                18.5712889  0.4430549
+## archOrthotropic             0.6365179  0.7342751
+## bladewid_c                  2.3731482  0.1653407
+## archOrthotropic:bladewid_c -1.3521649  0.1781851</code></pre>
+<pre class="r"><code># Robust SEs
+coeftest(fit, vcov = vcovHC(fit))[, 1:2]</code></pre>
+<pre><code>##                              Estimate Std. Error
+## (Intercept)                18.5712889  0.3455006
+## archOrthotropic             0.6365179  0.8353232
+## bladewid_c                  2.3731482  0.1547289
+## archOrthotropic:bladewid_c -1.3521649  0.2317027</code></pre>
+<p><em>The SEs from bootstrapped standard errors are pretty similar to the original SEs and robust SEs. For <code>(Intercept)</code>, the bootstrapped SE is greater than the original SE and robust SE. For <code>archOrthotropic</code> and <code>archOrthotropic:bladewid_c</code>, the bootstrapped SE is greater than the original SE but smaller than the robust SE. For <code>bladewid_c</code>, the boostrapped SE is smaller than the original SE and robust SE.</em></p>
+</div>
+</div>
+<div id="logistic-regression-model" class="section level3">
+<h3>5. Logistic Regression Model</h3>
+<div id="create-a-logistic-regression-model" class="section level4">
+<h4>Create a logistic regression model</h4>
+<pre class="r"><code># Predict leaf architecture from location and leaf
+# length
+fit2 = glm(arch ~ location + bladelen, family = &quot;binomial&quot;, 
+    data = leafshape)
+coeftest(fit2)</code></pre>
+<pre><code>## 
+## z test of coefficients:
+## 
+##                      Estimate Std. Error z value  Pr(&gt;|z|)    
+## (Intercept)         -5.101163   0.755947 -6.7480 1.498e-11 ***
+## locationNQueensland  1.432732   0.531353  2.6964   0.00701 ** 
+## locationPanama       0.879285   0.528238  1.6646   0.09600 .  
+## locationSabah       -0.465753   0.499379 -0.9327   0.35099    
+## locationSQueensland  3.455116   0.659589  5.2383 1.621e-07 ***
+## locationTasmania     5.490632   1.068347  5.1394 2.757e-07 ***
+## bladelen             0.189644   0.028943  6.5524 5.662e-11 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><em>Controlling for leaf length, N Queensland samples and Costa Rica samples are significantly different. Odds of being orthotropic for N Queensland samples is e ^ (1.433) = 4.190 times odds for Costa Rica samples.</em></p>
+<p><em>Controlling for leaf length, Panama samples and Costa Rica samples are not significantly different.</em></p>
+<p><em>Controlling for leaf length, Sabah samples and Costa Rica samples are not significantly different.</em></p>
+<p><em>Controlling for leaf length, S Queensland samples and Costa Rica samples are significantly different. Odds of being orthotropic for S Queensland samples is e ^ (3.455) = 31.662 times odds for Costa Rica samples.</em></p>
+<p><em>Controlling for leaf length, Tasmania samples and Costa Rica samples are significantly different. Odds of being orthotropic for Tasmania samples is e ^ (5.491) = 242.410 times odds for Costa Rica samples.</em></p>
+<p><em>Controlling for location, for every 1-unit increase in leaf length, odds of being orthotropic change by a factor of e ^ (0.190) = 1.209.</em></p>
+</div>
+<div id="confusion-matrix" class="section level4">
+<h4>Confusion matrix</h4>
+<pre class="r"><code>probs = predict(fit2, type = &quot;response&quot;)
+table(predict = as.numeric(probs &gt; 0.5), truth = leafshape$arch) %&gt;% 
+    addmargins</code></pre>
+<pre><code>##        truth
+## predict Plagiotropic Orthotropic Sum
+##     0            174          44 218
+##     1             18          50  68
+##     Sum          192          94 286</code></pre>
+</div>
+<div id="compute-classification-diagnositics" class="section level4">
+<h4>Compute classification diagnositics</h4>
+<pre class="r"><code>class_diag(probs, leafshape$arch)</code></pre>
+<pre><code>##                   acc      sens    spec       ppv       f1       auc
+## Orthotropic 0.7832168 0.5319149 0.90625 0.7352941 0.617284 0.8441102</code></pre>
+<p><em>For my model, Accuracy is <code>0.783</code>, Sensitivity is <code>0.532</code>, Specificity is <code>0.906</code>, Precision is <code>0.735</code>, and AUC is <code>0.844</code>. Even though the Sensitivity is a little bit low, the AUC is good.</em></p>
+</div>
+<div id="density-plot" class="section level4">
+<h4>Density plot</h4>
+<pre class="r"><code>leafshape %&gt;% mutate(logit = probs) %&gt;% ggplot(aes(logit, 
+    fill = arch)) + scale_fill_brewer(palette = &quot;Set2&quot;) + 
+    geom_density(alpha = 0.5, size = 0.5) + labs(title = &quot;Density vs. Predictor by Leaf Architecture&quot;, 
+    x = &quot;Predictor (logit)&quot;, y = &quot;Density&quot;, fill = &quot;Leaf Architecture&quot;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="roc-curve" class="section level4">
+<h4>ROC curve</h4>
+<pre class="r"><code># `geom_roc()` does not recognize factors with
+# labels, so create a new dataframe
+leafshape_4 = leafshape %&gt;% mutate(arch = ifelse(arch == 
+    &quot;Plagiotropic&quot;, 0, 1))
+
+# ROC plot
+ROCplot = leafshape_4 %&gt;% ggplot() + geom_roc(aes(d = arch, 
+    m = probs), n.cuts = 0)
+ROCplot</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># AUC
+calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.8441102</code></pre>
+<p><em>The ROC curve looks good because its area under the curve is large. The calculated AUC also suggests that this model is good.</em></p>
+</div>
+</div>
+<div id="logistic-regression-model-with-more-variables" class="section level3">
+<h3>6. Logistic Regression Model with More Variables</h3>
+<div id="create-a-logistic-regression-model-1" class="section level4">
+<h4>Create a logistic regression model</h4>
+<pre class="r"><code># Predict leaf architecture from the rest of the
+# variables
+fit3 = glm(arch ~ ., family = &quot;binomial&quot;, data = leafshape)
+coeftest(fit3)</code></pre>
+<pre><code>## 
+## z test of coefficients:
+## 
+##                      Estimate Std. Error z value  Pr(&gt;|z|)    
+## (Intercept)         -8.339713   3.781714 -2.2053 0.0274349 *  
+## bladelen            -0.050008   0.093583 -0.5344 0.5930841    
+## petiole              0.789080   0.643170  1.2269 0.2198749    
+## bladewid             0.444425   0.242773  1.8306 0.0671579 .  
+## latitude             0.167589   0.053196  3.1504 0.0016306 ** 
+## logwid              -6.504247   1.974028 -3.2949 0.0009845 ***
+## logpet               1.777145   1.073183  1.6560 0.0977306 .  
+## loglen               4.492770   1.938308  2.3179 0.0204557 *  
+## locationNQueensland  0.181142   0.633730  0.2858 0.7750045    
+## locationPanama       1.448563   0.694118  2.0869 0.0368960 *  
+## locationSabah        0.439483   0.749008  0.5868 0.5573696    
+## locationSQueensland  0.883244   0.889097  0.9934 0.3205070    
+## locationTasmania           NA         NA      NA        NA    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+</div>
+<div id="compute-classification-diagnositics-1" class="section level4">
+<h4>Compute classification diagnositics</h4>
+<pre class="r"><code>probs2 = predict(fit3, type = &quot;response&quot;)
+class_diag(probs2, leafshape$arch)</code></pre>
+<pre><code>##                   acc      sens      spec       ppv        f1       auc
+## Orthotropic 0.8916084 0.8085106 0.9322917 0.8539326 0.8306011 0.9310727</code></pre>
+<p><em>For my model, Accuracy is <code>0.892</code>, Sensitivity is <code>0.809</code>, Specificity is <code>0.932</code>, Precision is <code>0.854</code>, and AUC is <code>0.931</code>. According to the AUC, this model is doing great.</em></p>
+</div>
+<div id="fold-cv" class="section level4">
+<h4>10-fold CV</h4>
+<pre class="r"><code>set.seed(348)
+k = 10
+
+# Randomly order rows
+data = leafshape[sample(nrow(leafshape)), ]
+# Create folds
+folds = cut(seq(1:nrow(leafshape)), breaks = k, labels = F)
+# Store the results
+diags = NULL
+for (i in 1:k) {
+    # Create training and test sets
+    train = data[folds != i, ]
+    test = data[folds == i, ]
+    # Truth labels for fold i
+    truth = test$arch
+    # Train model on training set (all but fold i)
+    fit4 = glm(arch ~ ., data = train, family = &quot;binomial&quot;)
+    # Test model on test set (fold i)
+    probs = predict(fit4, newdata = test, type = &quot;response&quot;)
+    # Get diagnostics for fold i
+    diags = rbind(diags, class_diag(probs, truth))
+}
+
+# Average diagnostics across all k folds
+summarize_all(diags, mean)</code></pre>
+<pre><code>##         acc     sens      spec   ppv        f1       auc
+## 1 0.8640394 0.755711 0.9211206 0.825 0.7785591 0.9114704</code></pre>
+<p><em>For the 10-fold CV, Accuracy is <code>0.864</code>, Sensitivity is <code>0.756</code>, Specificity is <code>0.921</code>, Precision is <code>0.825</code>, and AUC is <code>0.911</code>. The metrics are lower than the in-sample ones, but the model is still great according to the high AUC.</em></p>
+</div>
+<div id="lasso" class="section level4">
+<h4>LASSO</h4>
+<pre class="r"><code>set.seed(348)
+
+# Predictor variables
+preds = model.matrix(fit3)[, -1]
+preds = scale(preds)
+# Response variable
+res = as.matrix(leafshape$arch)
+# Cross-validation
+cv.lasso1 = cv.glmnet(x = preds, y = res, family = &quot;binomial&quot;)
+# Lasso regularization
+lasso_fit = glmnet(x = preds, y = res, family = &quot;binomial&quot;, 
+    alpha = 1, lambda = cv.lasso1$lambda.1se)
+coef(lasso_fit)</code></pre>
+<pre><code>## 13 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                             s0
+## (Intercept)          0.9262260
+## bladelen            -0.1167036
+## petiole              .        
+## bladewid             .        
+## latitude            -0.9161413
+## logwid               .        
+## logpet              -1.4453858
+## loglen               .        
+## locationNQueensland  .        
+## locationPanama       .        
+## locationSabah        .        
+## locationSQueensland  .        
+## locationTasmania     .</code></pre>
+<p><em>The variables that are retained are: <code>bladelen</code>, <code>latitude</code>, and <code>logpet</code>.</em></p>
+</div>
+<div id="fold-cv-with-variables-from-lasso" class="section level4">
+<h4>10-fold CV with variables from LASSO</h4>
+<pre class="r"><code>set.seed(348)
+k = 10
+
+# Randomly order rows
+data = leafshape[sample(nrow(leafshape)), ]
+# Create folds
+folds = cut(seq(1:nrow(leafshape)), breaks = k, labels = F)
+# Store the results
+diags = NULL
+for (i in 1:k) {
+    # Create training and test sets
+    train = data[folds != i, ]
+    test = data[folds == i, ]
+    # Truth labels for fold i
+    truth = test$arch
+    # Train model on training set (all but fold i)
+    fit5 = glm(arch ~ bladelen + latitude + logpet, 
+        data = train, family = &quot;binomial&quot;)
+    # Test model on test set (fold i)
+    probs = predict(fit5, newdata = test, type = &quot;response&quot;)
+    # Get diagnostics for fold i
+    diags = rbind(diags, class_diag(probs, truth))
+}
+
+# Average diagnostics across all k folds
+summarize_all(diags, mean)</code></pre>
+<pre><code>##         acc      sens      spec       ppv        f1       auc
+## 1 0.8528325 0.7184324 0.9225146 0.8130051 0.7538634 0.8916953</code></pre>
+<p><em>Even though this model has a lower AUC than my logistic regressions above do, it is still a good model overall. However, this suggests that the original model is probably not overfitting.</em></p>
+<pre><code>## R version 3.6.1 (2019-07-05)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 18.04.5 LTS
+## 
+## Matrix products: default
+## BLAS:   /stor/system/opt/R/R-3.6.1/lib/R/lib/libRblas.so
+## LAPACK: /stor/system/opt/R/R-3.6.1/lib/R/lib/libRlapack.so
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] glmnet_4.0-2       Matrix_1.2-17      plotROC_2.2.1      sandwich_2.5-1    
+##  [5] lmtest_0.9-37      zoo_1.8-8          RColorBrewer_1.1-2 rstatix_0.6.0     
+##  [9] forcats_0.5.0      stringr_1.4.0      dplyr_1.0.1        purrr_0.3.4       
+## [13] readr_1.3.1        tidyr_1.1.1        tibble_3.0.3       ggplot2_3.3.2     
+## [17] tidyverse_1.3.0    DAAG_1.24          lattice_0.20-41   
+## 
+## loaded via a namespace (and not attached):
+##  [1] nlme_3.1-148        fs_1.5.0            lubridate_1.7.9    
+##  [4] httr_1.4.2          tools_3.6.1         backports_1.1.8    
+##  [7] utf8_1.1.4          R6_2.4.1            DBI_1.1.0          
+## [10] mgcv_1.8-31         colorspace_1.4-1    withr_2.2.0        
+## [13] tidyselect_1.1.0    curl_4.3            compiler_3.6.1     
+## [16] cli_2.0.2           rvest_0.3.6         formatR_1.7        
+## [19] xml2_1.3.2          labeling_0.3        bookdown_0.20      
+## [22] scales_1.1.1        digest_0.6.25       foreign_0.8-71     
+## [25] rmarkdown_2.3       rio_0.5.16          jpeg_0.1-8.1       
+## [28] pkgconfig_2.0.3     htmltools_0.5.0     dbplyr_1.4.4       
+## [31] rlang_0.4.7         readxl_1.3.1        rstudioapi_0.11    
+## [34] shape_1.4.5         generics_0.0.2      farver_2.0.3       
+## [37] jsonlite_1.7.0      zip_2.1.0           car_3.0-8          
+## [40] magrittr_1.5        Rcpp_1.0.5          munsell_0.5.0      
+## [43] fansi_0.4.1         abind_1.4-5         lifecycle_0.2.0    
+## [46] stringi_1.5.3       yaml_2.2.1          carData_3.0-4      
+## [49] plyr_1.8.6          grid_3.6.1          blob_1.2.1         
+## [52] crayon_1.3.4        haven_2.3.1         splines_3.6.1      
+## [55] hms_0.5.3           knitr_1.29          pillar_1.4.6       
+## [58] codetools_0.2-16    reprex_0.3.0        glue_1.4.2         
+## [61] evaluate_0.14       blogdown_0.20       latticeExtra_0.6-29
+## [64] data.table_1.13.0   modelr_0.1.8        png_0.1-7          
+## [67] vctrs_0.3.2         foreach_1.5.0       cellranger_1.1.0   
+## [70] gtable_0.3.0        assertthat_0.2.1    xfun_0.16          
+## [73] openxlsx_4.1.5      broom_0.7.0         survival_3.2-3     
+## [76] iterators_1.0.12    ellipsis_0.3.1</code></pre>
+<pre><code>## [1] &quot;2020-12-05 14:08:20 CST&quot;</code></pre>
+<pre><code>##                                       sysname 
+##                                       &quot;Linux&quot; 
+##                                       release 
+##                          &quot;4.15.0-117-generic&quot; 
+##                                       version 
+## &quot;#118-Ubuntu SMP Fri Sep 4 20:02:41 UTC 2020&quot; 
+##                                      nodename 
+##                  &quot;educcomp01.ccbb.utexas.edu&quot; 
+##                                       machine 
+##                                      &quot;x86_64&quot; 
+##                                         login 
+##                                     &quot;unknown&quot; 
+##                                          user 
+##                                      &quot;yw9497&quot; 
+##                                effective_user 
+##                                      &quot;yw9497&quot;</code></pre>
+</div>
+</div>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = 'kanoikanoi';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

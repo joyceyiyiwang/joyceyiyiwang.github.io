@@ -1,0 +1,35 @@
+---
+title: How R and Python Talk to Each Other
+author: Joyce Wang
+date: '2020-12-05'
+slug: how-r-and-python-talk-to-each-other
+categories:
+  - R
+  - Python
+tags:
+  - R Markdown
+description: ''
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+# How R and Python Talk to Each Other
+
+Believe it or not, R and Python can talk to each other! This can be accomplished with the R package `reticulate`.
+
+For example:
+
+```{r}
+# Using R
+library(reticulate) # Load the `reticulate` package
+str1 = "This is how R"
+```
+
+```{python}
+# Using Python
+str2 = "and python talk to each other."
+print(r.str1, str2)
+```
+
