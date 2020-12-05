@@ -17,6 +17,11 @@ knitr::opts_chunk$set(collapse = TRUE)
 
 # How R and Python Talk to Each Other
 
+
+![](https://i.redd.it/valh8qhnx0w11.png){width=50% height=50%}
+
+
+
 Believe it or not, R and Python can talk to each other! This can be accomplished with the R package `reticulate`.
 
 For example:
